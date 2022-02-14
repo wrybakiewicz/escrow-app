@@ -114,7 +114,7 @@ describe("Escrow", function () {
         const blockTime = await time.advanceBlock();
 
         const options1 = {value: amount};
-        const depositTx1 = await escrow.deposit(address1.address, options1);
+        await escrow.deposit(address1.address, options1);
 
         const deposit = await escrow.depositorsToCollectors(address1.address, address1.address);
         expect(deposit.amount).to.equal(amount);
@@ -174,4 +174,59 @@ describe("Escrow", function () {
 
         await expect(escrow.connect(address2).receiveDeposit(address1.address)).to.be.revertedWith("No deposit found");
     });
+
+    it("Should deposit funds and withdraw after lock end", async function () {
+        const [owner, address1, address2] = await ethers.getSigners();
+        const Escrow = await ethers.getContractFactory("Escrow");
+        const escrow = await Escrow.deploy(0);
+        await escrow.deployed();
+        const amount = ethers.utils.parseEther("1");
+        const account1InitialBalance = await address1.getBalance();
+        const account2InitialBalance = await address2.getBalance();
+
+
+        const options1 = {value: amount};
+        const depositTx = await escrow.connect(address1).deposit(address2.address, options1);
+        const depositTxResult = await depositTx.wait();
+        const withdrawTx = await escrow.connect(address1).withdrawDeposit(address2.address);
+        const withdrawTxResult = await withdrawTx.wait();
+
+        const deposit = await escrow.depositorsToCollectors(address1.address, address1.address);
+        expect(deposit.amount).to.equal(0);
+        const account1Balance = await address1.getBalance();
+        const depositGasFee = depositTxResult.effectiveGasPrice.mul(depositTxResult.cumulativeGasUsed);
+        const withdrawGasFee = withdrawTxResult.effectiveGasPrice.mul(withdrawTxResult.cumulativeGasUsed);
+        expect(account1Balance).to.equal(account1InitialBalance.sub(depositGasFee).sub(withdrawGasFee));
+        const account2Balance = await address2.getBalance();
+        expect(account2InitialBalance).to.equal(account2Balance);
+    });
+
+    it("Should deposit funds and fail withdraw after lock not end", async function () {
+        const [owner, address1, address2] = await ethers.getSigners();
+        const Escrow = await ethers.getContractFactory("Escrow");
+        const escrow = await Escrow.deploy(100);
+        await escrow.deployed();
+        const amount = ethers.utils.parseEther("1");
+
+        const options1 = {value: amount};
+        await escrow.connect(address1).deposit(address2.address, options1);
+
+        await expect(escrow.connect(address1).withdrawDeposit(address2.address)).to.be.revertedWith("Wait for lock end");
+    });
+
+    it("Should deposit funds and receive deposit and fail withdraw after lock end", async function () {
+        const [owner, address1, address2] = await ethers.getSigners();
+        const Escrow = await ethers.getContractFactory("Escrow");
+        const lockTime = 100;
+        const escrow = await Escrow.deploy(lockTime);
+        await escrow.deployed();
+        const amount = ethers.utils.parseEther("1");
+
+        const options1 = {value: amount};
+        await escrow.connect(address1).deposit(address2.address, options1);
+        await escrow.connect(address2).receiveDeposit(address1.address);
+
+        await expect(escrow.connect(address1).withdrawDeposit(address2.address)).to.be.revertedWith("No deposit found");
+    });
+
 });

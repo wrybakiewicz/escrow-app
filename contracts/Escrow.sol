@@ -32,6 +32,13 @@ contract Escrow {
     function depositorsToCollectors(address depositor, address collector) public view returns (Deposit memory) {
         return depositorsToCollectorsMap[depositor][collector];
     }
-    //TODO: user B can withdraw funds
-    //TODO: after time lock funds can be claimed by user A
+
+    function withdrawDeposit(address to) external payable {
+        Deposit memory existingDeposit = depositorsToCollectorsMap[msg.sender][to];
+        require(existingDeposit.amount > 0, "No deposit found");
+        require(block.timestamp >= existingDeposit.lockEnd, "Wait for lock end");
+        depositorsToCollectorsMap[msg.sender][to].amount = 0;
+        bool sent = payable(msg.sender).send(existingDeposit.amount);
+        require(sent, "Failed to withdraw deposit amount");
+    }
 }
