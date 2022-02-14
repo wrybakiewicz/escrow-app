@@ -21,6 +21,14 @@ contract Escrow {
         depositorsToCollectorsMap[msg.sender][to] = newDeposit;
     }
 
+    function receiveDeposit(address from) external payable {
+        Deposit memory existingDeposit = depositorsToCollectorsMap[from][msg.sender];
+        require(existingDeposit.amount > 0, "No deposit found");
+        depositorsToCollectorsMap[from][msg.sender].amount = 0;
+        bool sent = payable(msg.sender).send(existingDeposit.amount);
+        require(sent, "Failed to send deposit amount");
+    }
+
     function depositorsToCollectors(address depositor, address collector) public view returns (Deposit memory) {
         return depositorsToCollectorsMap[depositor][collector];
     }
