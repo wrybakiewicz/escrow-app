@@ -1,4 +1,4 @@
-# Escrow App
+# Escrow Dapp
 
 Write an escrow Smart Contract which helps users facilitate transactions. User A should be able to deposit funds in the Smart Contract while user B should be able to withdraw the previously deposited funds from user A.
 
