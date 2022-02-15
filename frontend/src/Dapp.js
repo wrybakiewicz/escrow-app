@@ -3,6 +3,7 @@ import React from "react";
 import EscrowArtifact from "./contracts/Escrow.json";
 import contractAddress from "./contracts/contract-address.json";
 import {ethers} from "ethers";
+import {Deposit} from "./Deposit";
 
 const HARDHAT_NETWORK_ID = '31337';
 
@@ -56,8 +57,8 @@ export class Dapp extends React.Component {
 
             <div className="row">
                 <div className="col-12 ">
-                    <div className="d-flex justify-content-center">
-                        {this.state.depositActive && (<div>Wallet connected</div>)}
+                    <div>
+                        {this.state.depositActive && (<Deposit escrow={this.state.escrow}/>)}
                         {this.state.receiveActive && (<div>Wallet2 connected</div>)}
                         {this.state.withdrawActive && (<div>Wallet3 connected</div>)}
                     </div>
@@ -96,6 +97,7 @@ export class Dapp extends React.Component {
     }
 
     _initialize(userAddress) {
+        console.log("User address: " + userAddress);
         this.setState({
             selectedAddress: userAddress,
         });
