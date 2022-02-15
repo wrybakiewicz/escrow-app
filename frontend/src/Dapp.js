@@ -13,7 +13,10 @@ export class Dapp extends React.Component {
 
         this.initialState = {
             selectedAddress: undefined,
-            escrow: undefined
+            escrow: undefined,
+            depositActive: true,
+            receiveActive: false,
+            withdrawActive: false
         };
 
         this.state = this.initialState;
@@ -34,7 +37,34 @@ export class Dapp extends React.Component {
             );
         }
 
-        return <div>Wallet connected</div>;
+        return <div className="container p-4">
+            <div className="row">
+                <div className="col-12">
+                    <ul className="nav nav-tabs justify-content-center">
+                        <li className="nav-item">
+                            <a className={"nav-link " + this.showActive(this.state.depositActive)} onClick={() => this.setState({depositActive: true, receiveActive: false, withdrawActive: false})} href="#">Deposit</a>
+                        </li>
+                        <li className="nav-item">
+                            <a className={"nav-link " + this.showActive(this.state.receiveActive)} onClick={() => this.setState({depositActive: false, receiveActive: true, withdrawActive: false})} href="#">Receive</a>
+                        </li>
+                        <li className="nav-item">
+                            <a className={"nav-link " + this.showActive(this.state.withdrawActive)} onClick={() => this.setState({depositActive: false, receiveActive: false, withdrawActive: true})} href="#">Withdraw Deposit</a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <div className="row">
+                <div className="col-12 ">
+                    <div className="d-flex justify-content-center">
+                        {this.state.depositActive && (<div>Wallet connected</div>)}
+                        {this.state.receiveActive && (<div>Wallet2 connected</div>)}
+                        {this.state.withdrawActive && (<div>Wallet3 connected</div>)}
+                    </div>
+                </div>
+            </div>
+
+        </div>;
     }
 
     async _connectWallet() {
@@ -85,6 +115,13 @@ export class Dapp extends React.Component {
     _resetState() {
         this.setState(this.initialState);
         this._connectWallet();
+    }
+
+    showActive(value) {
+        if(value) {
+            return "active";
+        }
+        return "";
     }
 
 }
