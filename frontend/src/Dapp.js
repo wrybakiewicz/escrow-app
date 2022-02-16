@@ -5,6 +5,7 @@ import contractAddress from "./contracts/contract-address.json";
 import {ethers} from "ethers";
 import {Deposit} from "./Deposit";
 import {Receive} from "./Receive";
+import {Withdraw} from "./Withdraw";
 
 const HARDHAT_NETWORK_ID = '31337';
 
@@ -44,13 +45,28 @@ export class Dapp extends React.Component {
                 <div className="col-12">
                     <ul className="nav nav-tabs justify-content-center">
                         <li className="nav-item">
-                            <a className={"nav-link " + this.showActive(this.state.depositActive)} onClick={() => this.setState({depositActive: true, receiveActive: false, withdrawActive: false})} href="#">Deposit</a>
+                            <a className={"nav-link " + this.showActive(this.state.depositActive)}
+                               onClick={() => this.setState({
+                                   depositActive: true,
+                                   receiveActive: false,
+                                   withdrawActive: false
+                               })} href="#">Deposit</a>
                         </li>
                         <li className="nav-item">
-                            <a className={"nav-link " + this.showActive(this.state.receiveActive)} onClick={() => this.setState({depositActive: false, receiveActive: true, withdrawActive: false})} href="#">Receive</a>
+                            <a className={"nav-link " + this.showActive(this.state.receiveActive)}
+                               onClick={() => this.setState({
+                                   depositActive: false,
+                                   receiveActive: true,
+                                   withdrawActive: false
+                               })} href="#">Receive</a>
                         </li>
                         <li className="nav-item">
-                            <a className={"nav-link " + this.showActive(this.state.withdrawActive)} onClick={() => this.setState({depositActive: false, receiveActive: false, withdrawActive: true})} href="#">Withdraw Deposit</a>
+                            <a className={"nav-link " + this.showActive(this.state.withdrawActive)}
+                               onClick={() => this.setState({
+                                   depositActive: false,
+                                   receiveActive: false,
+                                   withdrawActive: true
+                               })} href="#">Withdraw Deposit</a>
                         </li>
                     </ul>
                 </div>
@@ -60,8 +76,10 @@ export class Dapp extends React.Component {
                 <div className="col-12 ">
                     <div>
                         {this.state.depositActive && (<Deposit escrow={this.state.escrow}/>)}
-                        {this.state.receiveActive && (<Receive escrow={this.state.escrow} address={this.state.selectedAddress}/>)}
-                        {this.state.withdrawActive && (<div>Wallet3 connected</div>)}
+                        {this.state.receiveActive && (
+                            <Receive escrow={this.state.escrow} address={this.state.selectedAddress}/>)}
+                        {this.state.withdrawActive && (
+                            <Withdraw escrow={this.state.escrow} address={this.state.selectedAddress}/>)}
                     </div>
                 </div>
             </div>
@@ -121,7 +139,7 @@ export class Dapp extends React.Component {
     }
 
     showActive(value) {
-        if(value) {
+        if (value) {
             return "active";
         }
         return "";

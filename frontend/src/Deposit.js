@@ -13,6 +13,11 @@ export class Deposit extends React.Component {
         this.updateLockTime();
     }
 
+    componentWillUnmount() {
+        this.setState = () => {
+        };
+    }
+
     componentDidUpdate(prevProps, prevState, snapshot) {
         if (!this.state.lockTime) {
             this.updateLockTime();

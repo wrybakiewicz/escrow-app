@@ -1,7 +1,8 @@
 import React from "react";
 import {BigNumber, ethers} from "ethers";
+import moment from "moment";
 
-export class Receive extends React.Component {
+export class Withdraw extends React.Component {
 
     state = {
         deposits: []
@@ -22,21 +23,25 @@ export class Receive extends React.Component {
         }
     }
 
+
     render() {
         return <div>
             <table className="table">
                 <thead>
                 <tr>
-                    <th scope="col">From</th>
+                    <th scope="col">To</th>
+                    <th scope="col">Lock end</th>
                     <th scope="col">Amount</th>
                 </tr>
                 </thead>
                 <tbody>
-                {this.state.deposits.map(deposit => <tr key={deposit.from}>
-                    <td>{deposit.from}</td>
-                    <td>{deposit.amount}</td>
+                {this.state.deposits.map(deposit => <tr key={deposit.to}>
+                    <td>{deposit.to}</td>
+                    <td>{deposit.lockEnd.format('DD/MM/YYYY HH:mm')}</td>
+                    <td>{ethers.utils.formatEther(deposit.amount)}</td>
                     <td>
                         <button type="button" className="btn btn-primary"
+                                disabled={!this.canClaim(deposit)}
                                 onClick={() => this.claimDeposit(deposit)}>Claim
                         </button>
                     </td>
@@ -49,36 +54,41 @@ export class Receive extends React.Component {
     async updateDeposits() {
         const {escrow} = this.props;
         if (escrow) {
-            const fromAddresses = await this.getDepositFromAddresses();
-            const depositsPromiseList = fromAddresses.map(from => {
-                return escrow.depositorToCollector(from, this.props.address).then(deposit => {
-                    return {from: from, amount: deposit.amount};
+            const toAddresses = await this.getDepositToAddresses();
+            const depositsPromiseList = toAddresses.map(to => {
+                return escrow.depositorToCollector(this.props.address, to).then(deposit => {
+                    return {to: to, amount: deposit.amount, lockEnd: deposit.lockEnd};
                 });
             });
             const deposits = await Promise.all(depositsPromiseList);
             const formattedDeposits = deposits
                 .filter(deposit => !deposit.amount.eq(BigNumber.from(0)))
                 .map(deposit => {
-                    return {from: deposit.from, amount: ethers.utils.formatEther(deposit.amount)}
+                    const lockEnd = moment(deposit.lockEnd.toNumber() * 1000);
+                    return {to: deposit.to, amount: deposit.amount, lockEnd: lockEnd}
                 })
                 .sort((d1, d2) => d2.amount - d1.amount);
             this.setState({deposits: formattedDeposits});
         }
     }
 
-    getDepositFromAddresses() {
+    getDepositToAddresses() {
         const escrow = this.props.escrow;
-        const filter = escrow.filters.DepositCompleted(null, this.props.address, null)
+        const filter = escrow.filters.DepositCompleted(this.props.address, null, null)
         return escrow.queryFilter(filter).then(events => {
-            const fromAddresses = events.map((e) => e.args.from);
-            return [...new Set(fromAddresses)];
+            const toAddresses = events.map((e) => e.args.to);
+            return [...new Set(toAddresses)];
         })
     }
 
     async claimDeposit(deposit) {
         const escrow = this.props.escrow;
-        const receiveTx = await escrow.receiveDeposit(deposit.from);
-        receiveTx.wait().then(() => this.updateDeposits());
+        const withdrawTx = await escrow.withdrawDeposit(deposit.to);
+        withdrawTx.wait().then(() => this.updateDeposits());
+    }
+
+    canClaim(deposit) {
+        return deposit.lockEnd.isBefore(moment());
     }
 
 }
