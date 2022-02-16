@@ -53,20 +53,4 @@ contract Escrow {
     function depositorToCollector(address depositor, address collector) public view returns (Deposit memory) {
         return depositorsToCollectorsMap[depositor][collector];
     }
-
-    function depositorsToCollector(address[] memory depositors, address collector) public view returns (Deposit[] memory) {
-        Deposit[] memory deposits = new Deposit[](depositors.length);
-        for (uint i = 0; i < depositors.length; i++) {
-            deposits[i] = depositorsToCollectorsMap[depositors[i]][collector];
-        }
-        return deposits;
-    }
-
-    function depositorToCollectors(address depositor, address[] memory collectors) public view returns (Deposit[] memory) {
-        Deposit[] memory deposits = new Deposit[](collectors.length);
-        for (uint i = 0; i < collectors.length; i++) {
-            deposits[i] = depositorsToCollectorsMap[depositor][collectors[i]];
-        }
-        return deposits;
-    }
 }

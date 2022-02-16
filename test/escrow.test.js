@@ -1,7 +1,6 @@
 const {expect, assert} = require("chai");
 const {ethers} = require("hardhat");
 const {time} = require('@openzeppelin/test-helpers');
-const _ = require('underscore');
 
 describe("Escrow", function () {
     it("Should deposit funds to escrow to address", async function () {
@@ -54,9 +53,6 @@ describe("Escrow", function () {
         assert.isTrue(deposit2.lockEnd.gte(expectedLock2 - 100));
         assert.isTrue(deposit2.lockEnd.lte(expectedLock2 + 100));
         expect(depositTx2).to.emit(escrow, "DepositCompleted").withArgs(address3.address, address2.address, amount2);
-        const deposits = await escrow.depositorsToCollector([address1.address, address3.address], address2.address);
-        assert.isTrue(_.isEqual(deposits[0], deposit1));
-        assert.isTrue(_.isEqual(deposits[1], deposit2));
     });
 
     it("Should deposit funds to escrow from one address to two different addresses", async function () {
@@ -88,9 +84,6 @@ describe("Escrow", function () {
         assert.isTrue(deposit2.lockEnd.gte(expectedLock2 - 100));
         assert.isTrue(deposit2.lockEnd.lte(expectedLock2 + 100));
         expect(depositTx2).to.emit(escrow, "DepositCompleted").withArgs(address1.address, address3.address, amount2);
-        const deposits = await escrow.depositorToCollectors(address1.address, [address2.address, address3.address]);
-        assert.isTrue(_.isEqual(deposits[0], deposit1));
-        assert.isTrue(_.isEqual(deposits[1], deposit2));
     });
 
     it("Should deposit funds to escrow from one address to one address to times", async function () {

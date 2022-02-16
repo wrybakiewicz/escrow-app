@@ -9,7 +9,6 @@
     "hardhat": "^2.8.3"
   },
   "dependencies": {
-    "@openzeppelin/test-helpers": "^0.5.15",
-    "underscore": "^1.13.2"
+    "@openzeppelin/test-helpers": "^0.5.15"
   }
 }

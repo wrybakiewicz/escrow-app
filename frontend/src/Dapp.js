@@ -4,6 +4,7 @@ import EscrowArtifact from "./contracts/Escrow.json";
 import contractAddress from "./contracts/contract-address.json";
 import {ethers} from "ethers";
 import {Deposit} from "./Deposit";
+import {Receive} from "./Receive";
 
 const HARDHAT_NETWORK_ID = '31337';
 
@@ -59,7 +60,7 @@ export class Dapp extends React.Component {
                 <div className="col-12 ">
                     <div>
                         {this.state.depositActive && (<Deposit escrow={this.state.escrow}/>)}
-                        {this.state.receiveActive && (<div>Wallet2 connected</div>)}
+                        {this.state.receiveActive && (<Receive escrow={this.state.escrow} address={this.state.selectedAddress}/>)}
                         {this.state.withdrawActive && (<div>Wallet3 connected</div>)}
                     </div>
                 </div>
