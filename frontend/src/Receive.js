@@ -1,5 +1,6 @@
 import React from "react";
 import {BigNumber, ethers} from "ethers";
+import {toast} from "react-toastify";
 
 export class Receive extends React.Component {
 
@@ -75,10 +76,16 @@ export class Receive extends React.Component {
         })
     }
 
-    async claimDeposit(deposit) {
+    claimDeposit(deposit) {
         const escrow = this.props.escrow;
-        const receiveTx = await escrow.receiveDeposit(deposit.from);
-        receiveTx.wait().then(() => this.updateDeposits());
+        const receivePromise = escrow.receiveDeposit(deposit.from)
+            .then(receiveTx => receiveTx.wait())
+            .then(_ => this.updateDeposits());
+        toast.promise(receivePromise, {
+            pending: 'Receive transaction in progress',
+            success: 'Receive transaction succeed 👌',
+            error: 'Receive transaction failed 🤯'
+        });
     }
 
 }

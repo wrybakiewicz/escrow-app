@@ -1,5 +1,7 @@
 import React from "react";
 import {ethers} from "ethers";
+import { toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 export class Deposit extends React.Component {
 
@@ -57,11 +59,17 @@ export class Deposit extends React.Component {
         }
     }
 
-    async deposit() {
+    deposit() {
         const {escrow} = this.props;
         const value = ethers.utils.parseEther(this.state.amount);
-        await escrow.deposit(this.state.receiver, {value: value});
-        this.setState({receiver: "", amount: ""})
+        const depositPromise = escrow.deposit(this.state.receiver, {value: value})
+            .then(depositTx => depositTx.wait())
+            .then(_ => this.setState({receiver: "", amount: ""}));
+        toast.promise(depositPromise, {
+            pending: 'Deposit transaction in progress',
+            success: 'Deposit transaction succeed 👌',
+            error: 'Deposit transaction failed 🤯'
+        });
     }
 
 }

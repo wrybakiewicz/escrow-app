@@ -3,12 +3,14 @@ import ReactDOM from 'react-dom';
 import reportWebVitals from './reportWebVitals';
 import {Dapp} from "./Dapp";
 import "bootstrap/dist/css/bootstrap.css";
+import {ToastContainer} from "react-toastify";
 
 ReactDOM.render(
-  <React.StrictMode>
-    <Dapp />
-  </React.StrictMode>,
-  document.getElementById('root')
+    <React.StrictMode>
+        <Dapp/>
+        <ToastContainer/>
+    </React.StrictMode>,
+    document.getElementById('root')
 );
 
 // If you want to start measuring performance in your app, pass a function

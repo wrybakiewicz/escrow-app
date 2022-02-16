@@ -1,6 +1,7 @@
 import React from "react";
 import {BigNumber, ethers} from "ethers";
 import moment from "moment";
+import {toast} from "react-toastify";
 
 export class Withdraw extends React.Component {
 
@@ -83,8 +84,14 @@ export class Withdraw extends React.Component {
 
     async claimDeposit(deposit) {
         const escrow = this.props.escrow;
-        const withdrawTx = await escrow.withdrawDeposit(deposit.to);
-        withdrawTx.wait().then(() => this.updateDeposits());
+        const withdrawPromise = escrow.withdrawDeposit(deposit.to)
+            .then(withdrawTx => withdrawTx.wait())
+            .then(() => this.updateDeposits());
+        toast.promise(withdrawPromise, {
+            pending: 'Withdraw transaction in progress',
+            success: 'Withdraw transaction succeed 👌',
+            error: 'Withdraw transaction failed 🤯'
+        });
     }
 
     canClaim(deposit) {
