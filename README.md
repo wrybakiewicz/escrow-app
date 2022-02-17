@@ -6,4 +6,4 @@ You can add a timelock-like feature where funds will be automatically sent back 
 ## How to run
 - `make node`
 - `make compile deploy`
-- from ./client `npm install` `npm start`
+- from ./frontend `npm install` `npm start`
